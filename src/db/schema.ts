@@ -26,6 +26,9 @@ export const line_item = sqliteTable(
     id: integer({ mode: 'number' }).primaryKey({
       autoIncrement: true,
     }),
+    document_id: integer()
+      .notNull()
+      .references(() => documents.id),
     quantity: integer().notNull(),
     unit_price: integer().notNull(),
     discount: integer().notNull().default(0),
