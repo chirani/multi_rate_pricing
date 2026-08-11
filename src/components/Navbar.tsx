@@ -1,11 +1,10 @@
-import { authClient } from '#/lib/auth-client';
 import { Link } from '@tanstack/react-router';
 
-export default function Navbar() {
-  const { useSession } = authClient;
-  const { data } = useSession();
-  const userId = data?.user.id;
+interface NavbarProps {
+  isLoggedin: boolean;
+}
 
+export default function Navbar({ isLoggedin }: NavbarProps) {
   return (
     <nav className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
@@ -13,7 +12,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-end gap-3">
-        {!userId ? (
+        {!isLoggedin ? (
           <>
             <Link to="/login" className="btn btn-ghost">
               Login

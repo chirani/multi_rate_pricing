@@ -4,8 +4,14 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 
 import appCss from '../styles.css?url';
 import Navbar from '#/components/Navbar';
+import { getSession } from '#/lib/auth.functions';
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+    const userSession = await getSession();
+    return { userSession };
+  },
+
   head: () => ({
     meta: [
       {
@@ -30,13 +36,15 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { userSession } = Route.useRouteContext();
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <Navbar />
+        <Navbar isLoggedin={!!userSession} />
         {children}
         <TanStackDevtools
           config={{
