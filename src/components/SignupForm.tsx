@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authClient } from '#/lib/auth-client';
+import { useRouter } from '@tanstack/react-router';
 
 // 1. Define the validation schema using Zod
 const signUpSchema = z.object({
@@ -18,6 +19,8 @@ const signUpSchema = z.object({
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
+  const router = useRouter();
+  const { refetch } = authClient.useSession();
   // 3. Initialize React Hook Form
   const {
     register,
@@ -36,6 +39,8 @@ export default function SignUpForm() {
       password: data.password,
     });
     reset();
+    await refetch();
+    router.invalidate();
   };
 
   return (

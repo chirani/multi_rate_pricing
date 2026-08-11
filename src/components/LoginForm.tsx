@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authClient } from '#/lib/auth-client';
+import { useRouter } from '@tanstack/react-router';
 
 // 1. Define the validation schema using Zod
 const loginSchema = z.object({
@@ -15,10 +16,14 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+  const router = useRouter();
+  const { refetch } = authClient.useSession();
+
   // 3. Initialize React Hook Form
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -26,10 +31,13 @@ export default function LoginForm() {
 
   // 4. Handle submission
   const onSubmit = async (data: LoginFormData) => {
-    authClient.signIn.email({
+    await authClient.signIn.email({
       email: data.email,
       password: data.password,
     });
+    reset();
+    await refetch();
+    router.invalidate();
   };
 
   return (
