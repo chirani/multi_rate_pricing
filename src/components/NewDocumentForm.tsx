@@ -70,11 +70,13 @@ const NewDocumentForm: React.FC = () => {
   const onSubmit = (data: NewDocumentFormValues) => {
     console.log('Submitted Document Data:', data);
     const isValid = hasDuplicateLineItems(data.lineItems);
-    isValid &&
+    if (isValid) {
       setError('root', {
         type: 'value',
         message: "You can't have two line items with the same description?",
       });
+      return;
+    }
   };
 
   return (
@@ -207,7 +209,7 @@ const NewDocumentForm: React.FC = () => {
                           {...register(`lineItems.${index}.description`)}
                         />
                         {errors?.lineItems?.[index]?.description?.message && (
-                          <p className="label text-error">
+                          <p className="text-error">
                             {errors?.lineItems?.[index]?.description?.message}
                           </p>
                         )}
@@ -217,11 +219,13 @@ const NewDocumentForm: React.FC = () => {
                       <fieldset className="fieldset">
                         <input
                           className="input input-ghost m-0 min-w-0 block"
-                          type="number"
-                          {...register(`lineItems.${index}.unit_price`)}
+                          type="text"
+                          {...register(`lineItems.${index}.unit_price`, {
+                            valueAsNumber: true,
+                          })}
                         />
                         {errors?.lineItems?.[index]?.unit_price?.message && (
-                          <p className="label text-error">
+                          <p className="text-error max-w-40-200">
                             {errors?.lineItems?.[index]?.unit_price?.message}
                           </p>
                         )}
@@ -232,10 +236,12 @@ const NewDocumentForm: React.FC = () => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.quantity`)}
+                          {...register(`lineItems.${index}.quantity`, {
+                            valueAsNumber: true,
+                          })}
                         />
                         {errors?.lineItems?.[index]?.quantity?.message && (
-                          <p className="label text-error">
+                          <p className="text-error">
                             {errors?.lineItems?.[index]?.quantity?.message}
                           </p>
                         )}
@@ -246,10 +252,12 @@ const NewDocumentForm: React.FC = () => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.discount`)}
+                          {...register(`lineItems.${index}.discount`, {
+                            valueAsNumber: true,
+                          })}
                         />
                         {errors?.lineItems?.[index]?.discount?.message && (
-                          <p className="label text-error max-w-full">
+                          <p className="text-error max-w-full">
                             {errors?.lineItems?.[index]?.discount?.message}
                           </p>
                         )}
@@ -260,10 +268,12 @@ const NewDocumentForm: React.FC = () => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.tax`)}
+                          {...register(`lineItems.${index}.tax`, {
+                            valueAsNumber: true,
+                          })}
                         />
                         {errors?.lineItems?.[index]?.tax?.message && (
-                          <p className="label text-error">
+                          <p className="text-error">
                             {errors?.lineItems?.[index]?.tax?.message}
                           </p>
                         )}
