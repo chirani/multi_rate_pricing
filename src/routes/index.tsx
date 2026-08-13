@@ -1,4 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import DocumentList from '#/components/DocumentList';
+import { createFileRoute, Link, redirect } from '@tanstack/react-router';
+import { PlusCircle } from 'lucide-react';
 
 export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
@@ -11,11 +13,13 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-      <p className="mt-4 text-lg">
-        Edit <code>src/routes/index.tsx</code> to get started.
-      </p>
-    </div>
+    <main className="p-8 bg-base-200">
+      <div className="max-w-300 mx-auto h-screen">
+        <Link to="/document/new" className="btn btn-base-100 mt-3">
+          <PlusCircle /> Add Documents
+        </Link>
+        <DocumentList />
+      </div>
+    </main>
   );
 }
