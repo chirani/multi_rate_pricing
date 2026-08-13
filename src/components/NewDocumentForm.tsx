@@ -2,13 +2,17 @@ import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Delete } from 'lucide-react';
 
 // Define schema for an individual member
-const memberSchema = z.object({
-  name: z.string().min(1, { message: 'Member name is required' }),
-  role: z.enum(['editor', 'viewer', 'admin'], 'Select a valid role'),
-});
 
+const lineItemSchema = z.object({
+  description: z.string().min(3),
+  quantity: z.int().min(1),
+  unit_price: z.number(),
+  discount: z.number(),
+  tax: z.number(),
+});
 // Main Document Schema with nested Member array
 const newDocumentSchema = z.object({
   title: z
@@ -16,19 +20,20 @@ const newDocumentSchema = z.object({
     .min(1, { message: 'Title is required' })
     .max(100, { message: 'Title must be 100 characters or less' }),
   status: z.enum(['active', 'inactive']),
-  members: z
-    .array(memberSchema)
+  lineItems: z
+    .array(lineItemSchema)
     .min(1, { message: 'At least one member is required' }),
 });
 
 // Export TypeScript types
-export type Member = z.infer<typeof memberSchema>;
+export type lineItemSchema = z.infer<typeof lineItemSchema>;
 export type NewDocumentFormValues = z.infer<typeof newDocumentSchema>;
 
 const NewDocumentForm: React.FC = () => {
   const {
     register,
     control,
+    setError,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -37,23 +42,29 @@ const NewDocumentForm: React.FC = () => {
     defaultValues: {
       title: '',
       status: 'active',
-      members: [{ name: '', role: 'viewer' }], // Initial empty member
+      lineItems: [
+        { description: 'new', quantity: 1, unit_price: 1, discount: 0, tax: 0 },
+      ], // Initial empty member
     },
   });
 
   // Dynamic array controller for subform
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'members',
+    name: 'lineItems',
   });
 
   const onSubmit = (data: NewDocumentFormValues) => {
     console.log('Submitted Document Data:', data);
-    reset();
+    // reset();
+    setError('root', {
+      type: 'value',
+      message: "You can't have two line items with the same description?",
+    });
   };
 
   return (
-    <div className="card w-full max-w-2xl bg-base-100 shadow-xl border border-base-200 mx-auto my-6">
+    <div className="card w-full">
       <div className="card-body">
         <h2 className="card-title text-2xl font-bold mb-4">New Document</h2>
 
@@ -108,7 +119,7 @@ const NewDocumentForm: React.FC = () => {
             </div>
           </div>
 
-          <div className="divider">Document Members</div>
+          <div className="divider">Line Items</div>
 
           {/* Members Subform */}
           <div className="space-y-4">
@@ -118,7 +129,15 @@ const NewDocumentForm: React.FC = () => {
               </span>
               <button
                 type="button"
-                onClick={() => append({ name: '', role: 'viewer' })}
+                onClick={() =>
+                  append({
+                    description: 'new_item',
+                    quantity: 1,
+                    unit_price: 1,
+                    discount: 0,
+                    tax: 0,
+                  })
+                }
                 className="btn btn-outline btn-sm btn-primary"
               >
                 + Add Member
@@ -126,66 +145,73 @@ const NewDocumentForm: React.FC = () => {
             </div>
 
             {/* Array error message if minimum length fails */}
-            {errors.members?.root && (
+            {errors.lineItems?.root && (
               <p className="text-error text-xs">
-                {errors.members.root.message}
+                {errors.lineItems.root.message}
               </p>
             )}
-
-            {/* Member Input Rows */}
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-1"
-              >
-                {/* Member Name */}
-                <div className="form-control flex-1 w-full">
-                  <input
-                    type="text"
-                    placeholder="Member Name"
-                    {...register(`members.${index}.name`)}
-                    className={`input input-bordered input-sm w-full ${
-                      errors.members?.[index]?.name ? 'input-error' : ''
-                    }`}
-                  />
-                  {errors.members?.[index]?.name && (
-                    <span className="text-error text-xs mt-1">
-                      {errors.members[index]?.name?.message}
-                    </span>
-                  )}
-                </div>
-
-                {/* Member Role */}
-                <div className="form-control w-full sm:w-40">
-                  <select
-                    {...register(`members.${index}.role`)}
-                    className={`select select-bordered select-sm w-full ${
-                      errors.members?.[index]?.role ? 'select-error' : ''
-                    }`}
-                  >
-                    <option value="viewer">Viewer</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  {errors.members?.[index]?.role && (
-                    <span className="text-error text-xs mt-1">
-                      {errors.members[index]?.role?.message}
-                    </span>
-                  )}
-                </div>
-
-                {/* Remove Member Button */}
-                <button
-                  type="button"
-                  onClick={() => remove(index)}
-                  disabled={fields.length === 1}
-                  className="btn btn-ghost btn-sm btn-square text-error self-end sm:self-center"
-                  title="Remove Member"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Unit Price</th>
+                  <th>Quantity</th>
+                  <th>Discount</th>
+                  <th>Tax (%)</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((field, index) => (
+                  <tr key={index}>
+                    <th>
+                      <input
+                        className="input input-ghost m-0 min-w-0 block"
+                        type="text"
+                        {...register(`lineItems.${index}.description`)}
+                      />
+                    </th>
+                    <th>
+                      <input
+                        className="input input-ghost m-0 min-w-0 block"
+                        type="text"
+                        {...register(`lineItems.${index}.unit_price`)}
+                      />
+                    </th>
+                    <th>
+                      <input
+                        className="input input-ghost m-0 min-w-0 block"
+                        type="text"
+                        {...register(`lineItems.${index}.quantity`)}
+                      />
+                    </th>
+                    <th>
+                      <input
+                        className="input input-ghost m-0 min-w-0 block"
+                        type="text"
+                        {...register(`lineItems.${index}.discount`)}
+                      />
+                    </th>
+                    <th>
+                      <input
+                        className="input input-ghost m-0 min-w-0 block"
+                        type="text"
+                        {...register(`lineItems.${index}.tax`)}
+                      />
+                    </th>
+                    <th>
+                      <Delete
+                        className="hover:text-error"
+                        onMouseDown={() => {
+                          remove(index);
+                        }}
+                      />
+                    </th>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <span className="text-error">{errors.root?.message}</span>
           </div>
 
           {/* Form Actions */}

@@ -12,7 +12,9 @@ export default function Navbar({ isLoggedin }: NavbarProps) {
   return (
     <nav className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">Document_Maker</a>
+        <Link to="/" className="btn btn-ghost text-xl">
+          Document_Maker
+        </Link>
       </div>
 
       <div className="navbar-end gap-3">
