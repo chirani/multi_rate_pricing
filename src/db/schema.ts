@@ -12,6 +12,9 @@ export const documents = sqliteTable('documents', {
     autoIncrement: true,
   }),
   user_id: integer({ mode: 'number' }),
+  customer: integer('customer', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`
+  ),
   title: text().notNull(),
   status: text().notNull(),
 });

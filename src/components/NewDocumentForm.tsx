@@ -4,8 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Delete } from 'lucide-react';
 
-// Define schema for an individual member
-
 const lineItemSchema = z.object({
   description: z.string().min(3),
   quantity: z.int().min(1),
@@ -13,20 +11,23 @@ const lineItemSchema = z.object({
   discount: z.number(),
   tax: z.number(),
 });
-// Main Document Schema with nested Member array
+
 const newDocumentSchema = z.object({
   title: z
     .string()
     .min(1, { message: 'Title is required' })
     .max(100, { message: 'Title must be 100 characters or less' }),
-  status: z.enum(['active', 'inactive']),
+  customer: z
+    .string()
+    .min(1, { message: 'Customer is required' })
+    .max(100, { message: 'Customer must be 100 characters or less' }),
+  status: z.enum(['draft', 'finalized']),
   lineItems: z
     .array(lineItemSchema)
     .min(1, { message: 'At least one member is required' }),
 });
 
-// Export TypeScript types
-export type lineItemSchema = z.infer<typeof lineItemSchema>;
+export type LineItemSchema = z.infer<typeof lineItemSchema>;
 export type NewDocumentFormValues = z.infer<typeof newDocumentSchema>;
 
 const NewDocumentForm: React.FC = () => {
@@ -41,10 +42,10 @@ const NewDocumentForm: React.FC = () => {
     resolver: zodResolver(newDocumentSchema),
     defaultValues: {
       title: '',
-      status: 'active',
+      status: 'draft',
       lineItems: [
         { description: 'new', quantity: 1, unit_price: 1, discount: 0, tax: 0 },
-      ], // Initial empty member
+      ],
     },
   });
 
@@ -54,13 +55,26 @@ const NewDocumentForm: React.FC = () => {
     name: 'lineItems',
   });
 
+  const hasDuplicateLineItems = (lineItems: LineItemSchema[]) => {
+    const lineItemsTitles = new Set<string>();
+
+    return lineItems.some((lineItem: LineItemSchema) => {
+      if (lineItemsTitles.has(lineItem.description)) {
+        return true;
+      }
+      lineItemsTitles.add(lineItem.description);
+      return false;
+    });
+  };
+
   const onSubmit = (data: NewDocumentFormValues) => {
     console.log('Submitted Document Data:', data);
-    // reset();
-    setError('root', {
-      type: 'value',
-      message: "You can't have two line items with the same description?",
-    });
+    const isValid = hasDuplicateLineItems(data.lineItems);
+    isValid &&
+      setError('root', {
+        type: 'value',
+        message: "You can't have two line items with the same description?",
+      });
   };
 
   return (
@@ -94,20 +108,43 @@ const NewDocumentForm: React.FC = () => {
               )}
             </div>
 
+            <div className="form-control w-full">
+              <label htmlFor="title" className="label">
+                <span className="label-text font-medium">Customer</span>
+              </label>
+              <input
+                id="customer"
+                type="text"
+                placeholder="Enter document Customer"
+                {...register('customer')}
+                className={`input input-bordered w-full ${
+                  errors.customer ? 'input-error' : ''
+                }`}
+              />
+              {errors.customer && (
+                <label className="label">
+                  <span className="label-text-alt text-error">
+                    {errors.customer.message}
+                  </span>
+                </label>
+              )}
+            </div>
+
             {/* Status Field */}
             <div className="form-control w-full">
               <label htmlFor="status" className="label">
                 <span className="label-text font-medium">Status</span>
               </label>
               <select
+                disabled={true}
                 id="status"
                 {...register('status')}
-                className={`select select-bordered w-full ${
+                className={`select select-disabled select-bordered w-full ${
                   errors.status ? 'select-error' : ''
                 }`}
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="draft">Draft</option>
+                <option value="finalized">Finalized</option>
               </select>
               {errors.status && (
                 <label className="label">
@@ -121,7 +158,6 @@ const NewDocumentForm: React.FC = () => {
 
           <div className="divider">Line Items</div>
 
-          {/* Members Subform */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm font-semibold text-base-content/70">
@@ -138,13 +174,12 @@ const NewDocumentForm: React.FC = () => {
                     tax: 0,
                   })
                 }
-                className="btn btn-outline btn-sm btn-primary"
+                className="btn btn-outline btn-sm btn-neutral"
               >
                 + Add Member
               </button>
             </div>
 
-            {/* Array error message if minimum length fails */}
             {errors.lineItems?.root && (
               <p className="text-error text-xs">
                 {errors.lineItems.root.message}
@@ -162,42 +197,77 @@ const NewDocumentForm: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {fields.map((field, index) => (
+                {fields.map((_field, index) => (
                   <tr key={index}>
                     <th>
-                      <input
-                        className="input input-ghost m-0 min-w-0 block"
-                        type="text"
-                        {...register(`lineItems.${index}.description`)}
-                      />
+                      <fieldset className="fieldset">
+                        <input
+                          className="input input-ghost m-0 min-w-0 block"
+                          type="text"
+                          {...register(`lineItems.${index}.description`)}
+                        />
+                        {errors?.lineItems?.[index]?.description?.message && (
+                          <p className="label text-error">
+                            {errors?.lineItems?.[index]?.description?.message}
+                          </p>
+                        )}
+                      </fieldset>
                     </th>
                     <th>
-                      <input
-                        className="input input-ghost m-0 min-w-0 block"
-                        type="text"
-                        {...register(`lineItems.${index}.unit_price`)}
-                      />
+                      <fieldset className="fieldset">
+                        <input
+                          className="input input-ghost m-0 min-w-0 block"
+                          type="number"
+                          {...register(`lineItems.${index}.unit_price`)}
+                        />
+                        {errors?.lineItems?.[index]?.unit_price?.message && (
+                          <p className="label text-error">
+                            {errors?.lineItems?.[index]?.unit_price?.message}
+                          </p>
+                        )}
+                      </fieldset>
                     </th>
                     <th>
-                      <input
-                        className="input input-ghost m-0 min-w-0 block"
-                        type="text"
-                        {...register(`lineItems.${index}.quantity`)}
-                      />
+                      <fieldset className="fieldset">
+                        <input
+                          className="input input-ghost m-0 min-w-0 block"
+                          type="text"
+                          {...register(`lineItems.${index}.quantity`)}
+                        />
+                        {errors?.lineItems?.[index]?.quantity?.message && (
+                          <p className="label text-error">
+                            {errors?.lineItems?.[index]?.quantity?.message}
+                          </p>
+                        )}
+                      </fieldset>
                     </th>
                     <th>
-                      <input
-                        className="input input-ghost m-0 min-w-0 block"
-                        type="text"
-                        {...register(`lineItems.${index}.discount`)}
-                      />
+                      <fieldset className="fieldset">
+                        <input
+                          className="input input-ghost m-0 min-w-0 block"
+                          type="text"
+                          {...register(`lineItems.${index}.discount`)}
+                        />
+                        {errors?.lineItems?.[index]?.discount?.message && (
+                          <p className="label text-error max-w-full">
+                            {errors?.lineItems?.[index]?.discount?.message}
+                          </p>
+                        )}
+                      </fieldset>
                     </th>
                     <th>
-                      <input
-                        className="input input-ghost m-0 min-w-0 block"
-                        type="text"
-                        {...register(`lineItems.${index}.tax`)}
-                      />
+                      <fieldset className="fieldset">
+                        <input
+                          className="input input-ghost m-0 min-w-0 block"
+                          type="text"
+                          {...register(`lineItems.${index}.tax`)}
+                        />
+                        {errors?.lineItems?.[index]?.tax?.message && (
+                          <p className="label text-error">
+                            {errors?.lineItems?.[index]?.tax?.message}
+                          </p>
+                        )}
+                      </fieldset>
                     </th>
                     <th>
                       <Delete
@@ -214,7 +284,6 @@ const NewDocumentForm: React.FC = () => {
             <span className="text-error">{errors.root?.message}</span>
           </div>
 
-          {/* Form Actions */}
           <div className="card-actions justify-end mt-8 border-t border-base-200 pt-4">
             <button
               type="button"
