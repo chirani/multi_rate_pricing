@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Delete } from 'lucide-react';
+import { useInsertDocuments, useInsertLineItems } from '#/queries';
 
 const lineItemSchema = z.object({
   description: z.string().min(3),
@@ -48,7 +49,8 @@ const NewDocumentForm: React.FC = () => {
       ],
     },
   });
-
+  useInsertDocuments();
+  useInsertLineItems();
   // Dynamic array controller for subform
   const { fields, append, remove } = useFieldArray({
     control,

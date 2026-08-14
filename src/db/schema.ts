@@ -12,14 +12,15 @@ export const documents = sqliteTable('documents', {
     autoIncrement: true,
   }),
   user_id: integer({ mode: 'number' }),
-  customer: integer('customer', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`
-  ),
+  customer: text().notNull(),
   title: text().notNull(),
   status: text().notNull(),
+  createdAt: integer('customer', { mode: 'timestamp' }).default(
+    sql`(unixepoch())`
+  ),
 });
 
-export const line_item = sqliteTable(
+export const lineItems = sqliteTable(
   'line_items',
   {
     id: integer({ mode: 'number' }).primaryKey({
@@ -39,7 +40,8 @@ export const line_item = sqliteTable(
     check('discount_min_check', sql`${table.discount} >= 0`),
   ]
 );
-
+export type DocumentDB = typeof documents.$inferInsert;
+export type LineItemDB = typeof lineItems.$inferInsert;
 // Auth tables
 
 export const user = sqliteTable('user', {

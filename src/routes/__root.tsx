@@ -1,12 +1,18 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+import {
+  HeadContent,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-
+import type { QueryClient } from '@tanstack/react-query';
 import appCss from '../styles.css?url';
 import Navbar from '#/components/Navbar';
 import { getSession } from '#/lib/auth.functions';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   beforeLoad: async () => {
     const userSession = await getSession();
     return { userSession };
