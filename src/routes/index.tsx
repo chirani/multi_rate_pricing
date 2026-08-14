@@ -22,6 +22,8 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   const deps = Route.useRouteContext();
+  console.log(deps.user.id);
+
   const { data: documents } = useQuery(
     fetchDocumentsQueryOpts({ user_id: deps.user.id })
   );

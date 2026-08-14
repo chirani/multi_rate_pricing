@@ -5,8 +5,7 @@ import {
   insertLineItem,
   lineItemSchema,
 } from '#/server/document';
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
-import { queryObjects } from 'node:v8';
+import { queryOptions, useMutation } from '@tanstack/react-query';
 import type z from 'zod';
 
 type Document = z.infer<typeof documentSchema>;

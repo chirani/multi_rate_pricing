@@ -10,9 +10,13 @@ import appCss from '../styles.css?url';
 import Navbar from '#/components/Navbar';
 import { getSession } from '#/lib/auth.functions';
 
-export const Route = createRootRouteWithContext<{
+const NotFoundError = () => <>Hello World!</>;
+
+interface MyRouterContext {
   queryClient: QueryClient;
-}>()({
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
     const userSession = await getSession();
     return { userSession };
@@ -38,6 +42,7 @@ export const Route = createRootRouteWithContext<{
       },
     ],
   }),
+  notFoundComponent: () => <NotFoundError />,
   shellComponent: RootDocument,
 });
 

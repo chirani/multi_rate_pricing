@@ -53,6 +53,8 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
       ],
     },
   });
+
+  console.log(props.user_id);
   const { mutateAsync: insertDocument } = useInsertDocuments();
   const { mutateAsync: insertLineItems } = useInsertLineItems();
 
@@ -74,7 +76,6 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
   };
 
   const onSubmit = async (data: NewDocumentFormValues) => {
-    console.log('Submitted Document Data:', data);
     const isValid = hasDuplicateLineItems(data.lineItems);
     if (isValid) {
       setError('root', {

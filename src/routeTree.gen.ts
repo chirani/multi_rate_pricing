@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as DocumentIdRouteImport } from './routes/document/$id'
 import { Route as DocumentEditRouteImport } from './routes/document/edit'
 import { Route as DocumentNewRouteImport } from './routes/document/new'
 import { Route as DocumentUpdateRouteImport } from './routes/document/update'
@@ -30,6 +31,11 @@ const LoginRoute = LoginRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentIdRoute = DocumentIdRouteImport.update({
+  id: '/document/$id',
+  path: '/document/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocumentEditRoute = DocumentEditRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/document/$id': typeof DocumentIdRoute
   '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/document/$id': typeof DocumentIdRoute
   '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/document/$id': typeof DocumentIdRoute
   '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/document/$id'
     | '/document/edit'
     | '/document/new'
     | '/document/update'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/document/$id'
     | '/document/edit'
     | '/document/new'
     | '/document/update'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/document/$id'
     | '/document/edit'
     | '/document/new'
     | '/document/update'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  DocumentIdRoute: typeof DocumentIdRoute
   DocumentEditRoute: typeof DocumentEditRoute
   DocumentNewRoute: typeof DocumentNewRoute
   DocumentUpdateRoute: typeof DocumentUpdateRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/document/$id': {
+      id: '/document/$id'
+      path: '/document/$id'
+      fullPath: '/document/$id'
+      preLoaderRoute: typeof DocumentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/document/edit': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  DocumentIdRoute: DocumentIdRoute,
   DocumentEditRoute: DocumentEditRoute,
   DocumentNewRoute: DocumentNewRoute,
   DocumentUpdateRoute: DocumentUpdateRoute,
