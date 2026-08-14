@@ -1,6 +1,7 @@
 import { db } from '#/db';
 import { documents as documentsTable, lineItems } from '#/db/schema';
 import { createServerFn } from '@tanstack/react-start';
+import { eq } from 'drizzle-orm';
 import z from 'zod';
 
 export const documentSchema = z.object({
@@ -8,7 +9,7 @@ export const documentSchema = z.object({
   title: z.string(),
   status: z.string(),
   id: z.number().optional(),
-  user_id: z.number().nullable().optional(),
+  user_id: z.string(),
   createdAt: z.date().nullable().optional(),
 });
 
@@ -21,6 +22,10 @@ export const lineItemSchema = z.object({
   tax: z.number(),
 });
 
+export const getDocumentsSchema = z.object({
+  user_id: z.string(),
+});
+
 export const inserDocument = createServerFn({ method: 'GET' })
   .validator(z.array(documentSchema))
   .handler(async ({ data }) => {
@@ -31,4 +36,13 @@ export const insertLineItem = createServerFn({ method: 'POST' })
   .validator(z.array(lineItemSchema))
   .handler(async ({ data }) => {
     return await db.insert(lineItems).values(data).returning();
+  });
+
+export const fetchDocuments = createServerFn({ method: 'GET' })
+  .validator(getDocumentsSchema)
+  .handler(async ({ data }) => {
+    return await db
+      .select()
+      .from(documentsTable)
+      .where(eq(documentsTable.user_id, data.user_id));
   });

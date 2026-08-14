@@ -11,7 +11,9 @@ export const documents = sqliteTable('documents', {
   id: integer({ mode: 'number' }).primaryKey({
     autoIncrement: true,
   }),
-  user_id: integer({ mode: 'number' }),
+  user_id: text()
+    .notNull()
+    .references(() => user.id),
   customer: text().notNull(),
   title: text().notNull(),
   status: text().notNull(),
@@ -42,6 +44,8 @@ export const lineItems = sqliteTable(
 );
 export type DocumentDB = typeof documents.$inferInsert;
 export type LineItemDB = typeof lineItems.$inferInsert;
+
+export type DocumentSelectDB = typeof documents.$inferSelect;
 // Auth tables
 
 export const user = sqliteTable('user', {

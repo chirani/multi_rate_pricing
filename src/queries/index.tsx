@@ -1,10 +1,12 @@
 import {
   documentSchema,
+  fetchDocuments,
   inserDocument,
   insertLineItem,
   lineItemSchema,
 } from '#/server/document';
-import { useMutation } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
+import { queryObjects } from 'node:v8';
 import type z from 'zod';
 
 type Document = z.infer<typeof documentSchema>;
@@ -22,4 +24,10 @@ export const useInsertLineItems = () =>
     mutationKey: ['insert-line-items'],
     mutationFn: async (lineItem: LineItem[]) =>
       await insertLineItem({ data: lineItem }),
+  });
+
+export const fetchDocumentsQueryOpts = ({ user_id }: { user_id: string }) =>
+  queryOptions({
+    queryKey: ['fetch-documents'],
+    queryFn: async () => fetchDocuments({ data: { user_id } }),
   });

@@ -22,6 +22,13 @@
       "when": 1786670807105,
       "tag": "0002_sticky_marrow",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786722173995,
+      "tag": "0003_flawless_dark_beast",
+      "breakpoints": true
     }
   ]
 }

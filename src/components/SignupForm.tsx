@@ -26,6 +26,7 @@ export default function SignUpForm() {
     register,
     reset,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -33,11 +34,16 @@ export default function SignUpForm() {
 
   // 4. Handle submission
   const onSubmit = async (data: SignUpFormData) => {
-    await authClient.signUp.email({
-      email: data.email,
-      name: data.username,
-      password: data.password,
-    });
+    try {
+      await authClient.signUp.email({
+        email: data.email,
+        name: data.username,
+        password: data.password,
+      });
+    } catch (error) {
+      console.log(error);
+      setError('root', { message: 'hello Worl' });
+    }
     reset();
     await refetch();
     router.invalidate();

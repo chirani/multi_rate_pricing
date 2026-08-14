@@ -31,7 +31,11 @@ const newDocumentSchema = z.object({
 export type LineItemSchema = z.infer<typeof lineItemSchema>;
 export type NewDocumentFormValues = z.infer<typeof newDocumentSchema>;
 
-const NewDocumentForm: React.FC = () => {
+interface NewDocumentProps {
+  user_id: string;
+}
+
+const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
   const {
     register,
     control,
@@ -51,7 +55,7 @@ const NewDocumentForm: React.FC = () => {
   });
   const { mutateAsync: insertDocument } = useInsertDocuments();
   const { mutateAsync: insertLineItems } = useInsertLineItems();
-  // Dynamic array controller for subform
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'lineItems',
@@ -82,7 +86,12 @@ const NewDocumentForm: React.FC = () => {
 
     try {
       const createdDocument = await insertDocument([
-        { customer: data.customer, title: data.title, status: data.status },
+        {
+          customer: data.customer,
+          title: data.title,
+          status: data.status,
+          user_id: props.user_id,
+        },
       ]);
 
       const preparedLineItems = data.lineItems.map((li) => ({
