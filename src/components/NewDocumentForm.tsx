@@ -49,8 +49,8 @@ const NewDocumentForm: React.FC = () => {
       ],
     },
   });
-  useInsertDocuments();
-  useInsertLineItems();
+  const { mutateAsync: insertDocument } = useInsertDocuments();
+  const { mutateAsync: insertLineItems } = useInsertLineItems();
   // Dynamic array controller for subform
   const { fields, append, remove } = useFieldArray({
     control,
@@ -69,7 +69,7 @@ const NewDocumentForm: React.FC = () => {
     });
   };
 
-  const onSubmit = (data: NewDocumentFormValues) => {
+  const onSubmit = async (data: NewDocumentFormValues) => {
     console.log('Submitted Document Data:', data);
     const isValid = hasDuplicateLineItems(data.lineItems);
     if (isValid) {
@@ -78,6 +78,23 @@ const NewDocumentForm: React.FC = () => {
         message: "You can't have two line items with the same description?",
       });
       return;
+    }
+
+    try {
+      const createdDocument = await insertDocument([
+        { customer: data.customer, title: data.title, status: data.status },
+      ]);
+
+      const preparedLineItems = data.lineItems.map((li) => ({
+        ...li,
+        document_id: createdDocument[0].id,
+      }));
+
+      await insertLineItems(preparedLineItems);
+
+      reset();
+    } catch (error) {
+      console.log(error);
     }
   };
 

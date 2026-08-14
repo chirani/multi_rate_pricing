@@ -15,6 +15,13 @@
       "when": 1786398821686,
       "tag": "0001_easy_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786670807105,
+      "tag": "0002_sticky_marrow",
+      "breakpoints": true
     }
   ]
 }
