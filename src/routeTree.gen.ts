@@ -12,11 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SignupRouteImport } from './routes/signup'
-import { Route as DocumentIdRouteImport } from './routes/document/$id'
-import { Route as DocumentEditRouteImport } from './routes/document/edit'
 import { Route as DocumentNewRouteImport } from './routes/document/new'
 import { Route as DocumentUpdateRouteImport } from './routes/document/update'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DocumentIdIndexRouteImport } from './routes/document/$id/index'
+import { Route as DocumentIdEditRouteImport } from './routes/document/$id/edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,16 +31,6 @@ const LoginRoute = LoginRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentIdRoute = DocumentIdRouteImport.update({
-  id: '/document/$id',
-  path: '/document/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentEditRoute = DocumentEditRouteImport.update({
-  id: '/document/edit',
-  path: '/document/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocumentNewRoute = DocumentNewRouteImport.update({
@@ -58,37 +48,47 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocumentIdIndexRoute = DocumentIdIndexRouteImport.update({
+  id: '/document/$id/',
+  path: '/document/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentIdEditRoute = DocumentIdEditRouteImport.update({
+  id: '/document/$id/edit',
+  path: '/document/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/document/$id': typeof DocumentIdRoute
-  '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/document/$id/edit': typeof DocumentIdEditRoute
+  '/document/$id/': typeof DocumentIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/document/$id': typeof DocumentIdRoute
-  '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/document/$id/edit': typeof DocumentIdEditRoute
+  '/document/$id': typeof DocumentIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/document/$id': typeof DocumentIdRoute
-  '/document/edit': typeof DocumentEditRoute
   '/document/new': typeof DocumentNewRoute
   '/document/update': typeof DocumentUpdateRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/document/$id/edit': typeof DocumentIdEditRoute
+  '/document/$id/': typeof DocumentIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,42 +96,42 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
-    | '/document/$id'
-    | '/document/edit'
     | '/document/new'
     | '/document/update'
     | '/api/auth/$'
+    | '/document/$id/edit'
+    | '/document/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/signup'
-    | '/document/$id'
-    | '/document/edit'
     | '/document/new'
     | '/document/update'
     | '/api/auth/$'
+    | '/document/$id/edit'
+    | '/document/$id'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/signup'
-    | '/document/$id'
-    | '/document/edit'
     | '/document/new'
     | '/document/update'
     | '/api/auth/$'
+    | '/document/$id/edit'
+    | '/document/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  DocumentIdRoute: typeof DocumentIdRoute
-  DocumentEditRoute: typeof DocumentEditRoute
   DocumentNewRoute: typeof DocumentNewRoute
   DocumentUpdateRoute: typeof DocumentUpdateRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  DocumentIdEditRoute: typeof DocumentIdEditRoute
+  DocumentIdIndexRoute: typeof DocumentIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -157,20 +157,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/document/$id': {
-      id: '/document/$id'
-      path: '/document/$id'
-      fullPath: '/document/$id'
-      preLoaderRoute: typeof DocumentIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/document/edit': {
-      id: '/document/edit'
-      path: '/document/edit'
-      fullPath: '/document/edit'
-      preLoaderRoute: typeof DocumentEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/document/new': {
       id: '/document/new'
       path: '/document/new'
@@ -192,6 +178,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/document/$id/': {
+      id: '/document/$id/'
+      path: '/document/$id'
+      fullPath: '/document/$id/'
+      preLoaderRoute: typeof DocumentIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/document/$id/edit': {
+      id: '/document/$id/edit'
+      path: '/document/$id/edit'
+      fullPath: '/document/$id/edit'
+      preLoaderRoute: typeof DocumentIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -199,11 +199,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  DocumentIdRoute: DocumentIdRoute,
-  DocumentEditRoute: DocumentEditRoute,
   DocumentNewRoute: DocumentNewRoute,
   DocumentUpdateRoute: DocumentUpdateRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  DocumentIdEditRoute: DocumentIdEditRoute,
+  DocumentIdIndexRoute: DocumentIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

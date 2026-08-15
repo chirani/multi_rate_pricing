@@ -72,3 +72,15 @@ export const fetchDocumentLineItems = createServerFn({ method: 'GET' })
       .from(lineItems)
       .where(eq(lineItems.document_id, data.document_id));
   });
+
+export const deleteLineItems = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      document_id: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    return await db
+      .delete(lineItems)
+      .where(eq(lineItems.document_id, data.document_id));
+  });

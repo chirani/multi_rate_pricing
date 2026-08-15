@@ -1,9 +1,11 @@
+// Hello
+
 import { fetchDocumentByIdQueryOpts, fetchLineItemsQueryOpts } from '#/queries';
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { Pencil, Trash2 } from 'lucide-react';
 
-export const Route = createFileRoute('/document/$id')({
+export const Route = createFileRoute('/document/$id/')({
   component: RouteComponent,
 });
 
@@ -62,9 +64,13 @@ function RouteComponent() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="btn btn-lg btn-ghost btn-square">
+          <Link
+            to="/document/$id/edit"
+            params={{ id }}
+            className="btn btn-lg btn-ghost btn-square"
+          >
             <Pencil />
-          </button>
+          </Link>
           <button className="btn btn-lg btn-ghost btn-square hover:text-error">
             <Trash2 />
           </button>
