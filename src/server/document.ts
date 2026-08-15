@@ -46,3 +46,29 @@ export const fetchDocuments = createServerFn({ method: 'GET' })
       .from(documentsTable)
       .where(eq(documentsTable.user_id, data.user_id));
   });
+
+export const fetchDocumentById = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({
+      document_id: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    return await db
+      .select()
+      .from(documentsTable)
+      .where(eq(documentsTable.id, data.document_id));
+  });
+
+export const fetchDocumentLineItems = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({
+      document_id: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    return await db
+      .select()
+      .from(lineItems)
+      .where(eq(lineItems.document_id, data.document_id));
+  });

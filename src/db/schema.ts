@@ -31,6 +31,7 @@ export const lineItems = sqliteTable(
     document_id: integer()
       .notNull()
       .references(() => documents.id),
+    description: text().notNull(),
     quantity: integer().notNull(),
     unit_price: integer().notNull(),
     discount: integer().notNull().default(0),

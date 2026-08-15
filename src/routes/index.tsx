@@ -1,5 +1,5 @@
 import DocumentList from '#/components/DocumentList';
-import { fetchDocumentsQueryOpts } from '#/queries';
+import { fetchDocumentsQueryOpts, fetchLineItemsQueryOpts } from '#/queries';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 import { PlusCircle } from 'lucide-react';
@@ -22,11 +22,10 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   const deps = Route.useRouteContext();
-  console.log(deps.user.id);
-
   const { data: documents } = useQuery(
     fetchDocumentsQueryOpts({ user_id: deps.user.id })
   );
+
   const documentList = documents?.length ? documents : [];
 
   return (

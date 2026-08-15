@@ -23,15 +23,18 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       )}
 
       {documentList.map((document) => (
-        <Link to="/" key={document.id} className="list-row items-center">
-          <p>{document.title}</p>
-          <button className="btn btn-square btn-ghost ml-auto">
+        <li key={document.id} className="list-row items-center">
+          <Link
+            className="btn btn-ghost w-full"
+            to="/document/$id"
+            params={{ id: String(document.id) }}
+          >
+            {document.title}
+          </Link>
+          <button className="btn btn-ghost btn-square ml-auto">
             <Trash2 />
           </button>
-          <button className="btn btn-square btn-ghost ml-2">
-            <Pencil />
-          </button>
-        </Link>
+        </li>
       ))}
     </ul>
   );
