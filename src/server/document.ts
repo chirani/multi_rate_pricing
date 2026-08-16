@@ -32,7 +32,7 @@ export const inserDocument = createServerFn({ method: 'GET' })
     return await db.insert(documentsTable).values(data).returning();
   });
 
-export const insertLineItem = createServerFn({ method: 'POST' })
+export const insertLineItems = createServerFn({ method: 'POST' })
   .validator(z.array(lineItemSchema))
   .handler(async ({ data }) => {
     return await db.insert(lineItems).values(data).returning();
@@ -67,10 +67,12 @@ export const fetchDocumentLineItems = createServerFn({ method: 'GET' })
     })
   )
   .handler(async ({ data }) => {
-    return await db
+    const documentlineItems = await db
       .select()
       .from(lineItems)
       .where(eq(lineItems.document_id, data.document_id));
+
+    return documentlineItems.length ? documentlineItems : [];
   });
 
 export const deleteLineItems = createServerFn({ method: 'POST' })
@@ -105,4 +107,17 @@ export const updateDocumentById = createServerFn({ method: 'POST' })
           eq(documentsTable.status, 'draft')
         )
       );
+  });
+
+export const updateLineItems = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      document_id: z.number(),
+      lineItems: z.array(lineItemSchema),
+    })
+  )
+  .handler(async ({ data }) => {
+    const { document_id, lineItems } = data;
+    await deleteLineItems({ data: { document_id } });
+    return await insertLineItems({ data: lineItems });
   });

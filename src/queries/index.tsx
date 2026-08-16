@@ -5,9 +5,10 @@ import {
   fetchDocumentLineItems,
   fetchDocuments,
   inserDocument,
-  insertLineItem,
+  insertLineItems,
   lineItemSchema,
   updateDocumentById,
+  updateLineItems,
 } from '#/server/document';
 import { queryOptions, useMutation } from '@tanstack/react-query';
 import type z from 'zod';
@@ -25,8 +26,8 @@ export const useInsertDocuments = () =>
 export const useInsertLineItems = () =>
   useMutation({
     mutationKey: ['insert-line-items'],
-    mutationFn: async (lineItem: LineItem[]) =>
-      await insertLineItem({ data: lineItem }),
+    mutationFn: async (lineItems: LineItem[]) =>
+      await insertLineItems({ data: lineItems }),
   });
 
 export const useDeleteLineItems = () =>
@@ -36,9 +37,9 @@ export const useDeleteLineItems = () =>
       await deleteLineItems({ data: { document_id } }),
   });
 
-export const useUpdateDocuments = () =>
+export const useUpdateDocument = () =>
   useMutation({
-    mutationKey: ['update-line-items'],
+    mutationKey: ['update-document'],
     mutationFn: async (data: {
       document_id: number;
       title: string;
@@ -46,10 +47,22 @@ export const useUpdateDocuments = () =>
     }) => await updateDocumentById({ data }),
   });
 
+export const useUpdateLineItems = () =>
+  useMutation({
+    mutationKey: ['update-document'],
+    mutationFn: async (data: {
+      lineItems: LineItem[];
+      document_id: number;
+    }) => {
+      const { lineItems, document_id } = data;
+      return await updateLineItems({ data: { lineItems, document_id } });
+    },
+  });
+
 export const fetchDocumentsQueryOpts = ({ user_id }: { user_id: string }) =>
   queryOptions({
     queryKey: ['fetch-documents'],
-    queryFn: async () => fetchDocuments({ data: { user_id } }),
+    queryFn: async () => await fetchDocuments({ data: { user_id } }),
   });
 
 export const fetchDocumentByIdQueryOpts = ({
@@ -59,7 +72,7 @@ export const fetchDocumentByIdQueryOpts = ({
 }) =>
   queryOptions({
     queryKey: ['fetch-document-by-id ' + document_id],
-    queryFn: async () => fetchDocumentById({ data: { document_id } }),
+    queryFn: async () => await fetchDocumentById({ data: { document_id } }),
   });
 
 export const fetchLineItemsQueryOpts = ({
@@ -69,5 +82,6 @@ export const fetchLineItemsQueryOpts = ({
 }) =>
   queryOptions({
     queryKey: ['fetch-line-items ' + document_id],
-    queryFn: async () => fetchDocumentLineItems({ data: { document_id } }),
+    queryFn: async () =>
+      await fetchDocumentLineItems({ data: { document_id } }),
   });

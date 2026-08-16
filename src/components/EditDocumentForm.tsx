@@ -8,15 +8,16 @@ import {
   fetchLineItemsQueryOpts,
   useDeleteLineItems,
   useInsertLineItems,
-  useUpdateDocuments,
+  useUpdateDocument,
 } from '#/queries';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 
 const lineItemSchema = z.object({
   description: z.string().min(3),
   quantity: z.int().min(1),
   unit_price: z.number(),
-  discount: z.number(),
+  discount: z.string(),
   tax: z.number(),
 });
 
@@ -58,17 +59,24 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
       title: '',
       status: 'draft',
       lineItems: [
-        { description: 'new', quantity: 1, unit_price: 1, discount: 0, tax: 0 },
+        {
+          description: 'new',
+          quantity: 1,
+          unit_price: 1,
+          discount: '0',
+          tax: 0,
+        },
       ],
     },
   });
+  const { navigate } = useRouter();
   const { data: documentData, isSuccess: isDocumentDataSucess } = useQuery(
     fetchDocumentByIdQueryOpts({ document_id: props.document_id })
   );
   const { data: lineItemsData, isSuccess: isLineItemsSuccess } = useQuery(
     fetchLineItemsQueryOpts({ document_id: props.document_id })
   );
-  const { mutateAsync: updateDocument } = useUpdateDocuments();
+  const { mutateAsync: updateDocument } = useUpdateDocument();
   const { mutateAsync: insertLineItems } = useInsertLineItems();
   const { mutateAsync: deleteLineItems } = useDeleteLineItems();
 
@@ -83,11 +91,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
 
   useEffect(() => {
     if (isLineItemsSuccess && lineItemsData.length) {
-      const lineItemsAdjusted = lineItemsData.map((li) => ({
-        ...li,
-        tax: li.tax ? li.tax : 0,
-      }));
-      reset({ lineItems: lineItemsAdjusted });
+      reset({ lineItems: lineItemsData });
     }
   }, [lineItemsData, isLineItemsSuccess]);
 
@@ -137,6 +141,10 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
       }));
 
       await insertLineItems(preparedLineItems);
+      navigate({
+        to: '/document/$id',
+        params: { id: String(props.document_id) },
+      });
     } catch (error) {
       console.log(error);
     }
@@ -235,7 +243,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
                     description: 'new_item',
                     quantity: 1,
                     unit_price: 1,
-                    discount: 0,
+                    discount: '0',
                     tax: 0,
                   })
                 }
@@ -315,9 +323,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.discount`, {
-                            valueAsNumber: true,
-                          })}
+                          {...register(`lineItems.${index}.discount`)}
                         />
                         {errors?.lineItems?.[index]?.discount?.message && (
                           <p className="text-error max-w-full">
@@ -377,7 +383,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
                   Saving...
                 </>
               ) : (
-                'Updating Document'
+                'Update Document'
               )}
             </button>
           </div>
