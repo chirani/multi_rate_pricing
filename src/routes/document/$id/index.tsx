@@ -1,6 +1,7 @@
 // Hello
 
 import { fetchDocumentByIdQueryOpts, fetchLineItemsQueryOpts } from '#/queries';
+import { formatValue } from '#/utils/formatters';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -138,11 +139,11 @@ function RouteComponent() {
             return (
               <tr key={li.id}>
                 <th>{li.description}</th>
-                <th>{li.subTotal}</th>
-                <th>{li.discountAmount}</th>
-                <th>{li.totalAfterDiscount}</th>
-                <th>{li.lineTax}</th>
-                <th>{li.lineTotal}</th>
+                <th>{formatValue(li.subTotal)}</th>
+                <th>{formatValue(li.discountAmount)}</th>
+                <th>{formatValue(li.totalAfterDiscount)}</th>
+                <th>{formatValue(li.lineTax)}</th>
+                <th>{formatValue(li.lineTotal)}</th>
               </tr>
             );
           })}
@@ -150,17 +151,19 @@ function RouteComponent() {
       </table>
       <div className="flex flex-col items-end p-6 mt-6">
         <p>
-          Subtotal <span className="font-bold">{subTotal}</span>
+          Subtotal <span className="font-bold">{formatValue(subTotal)}</span>
         </p>
         <p>
-          Total Discount : <span className="font-bold">{totalDiscount}</span>
+          Total Discount :{' '}
+          <span className="font-bold">{formatValue(totalDiscount)}</span>
         </p>
         <p>
-          Total Tax : <span className="font-bold">{totalTax}</span>
+          Total Tax : <span className="font-bold">{formatValue(totalTax)}</span>
         </p>
 
         <p className="text-xl border-t-1 pt-3">
-          Grand Total : <span className="font-bold">{GrandTotal}</span>
+          Grand Total :{' '}
+          <span className="font-bold">{formatValue(GrandTotal)}</span>
         </p>
       </div>
     </main>
