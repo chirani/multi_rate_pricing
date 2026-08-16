@@ -23,40 +23,86 @@ function RouteComponent() {
   const documentList = documents?.length ? documents : [];
   const lineItemList = lineItems?.length ? lineItems : [];
 
-  const lineItemListAdjusted = lineItemList.map((li) => ({
-    ...li,
-    tax: li.tax ? li.tax : 0,
-  }));
-
   if (documentList.length != 1) {
     return <></>;
   }
 
   const document = documentList[0];
 
-  const total = lineItemListAdjusted.reduce(
-    (acc, curr) => acc + curr.quantity * curr.unit_price,
+  const cleanDiscount = (input: string) => {
+    if (input == null) return 0;
+    // Convert to string and extract numbers and decimals only
+    const sanitized = String(input).replace(/[^0-9.]/g, '');
+    const result = parseFloat(sanitized);
+    return Number.isNaN(result) ? 0 : result;
+  };
+
+  const lineDiscount = (
+    quantity: number,
+    unit_price: number,
+    itemDiscount: string
+  ) => {
+    const subtotal = quantity * unit_price;
+    const discount = itemDiscount.trim();
+
+    let discountAmount: number;
+
+    if (discount.includes('%')) {
+      const percentageDiscount = cleanDiscount(discount);
+      discountAmount = (subtotal * percentageDiscount) / 100;
+    } else {
+      discountAmount = parseFloat(discount) * quantity;
+    }
+
+    return discountAmount;
+  };
+
+  const lineItemAdjusted = lineItemList.map((li) => {
+    const discountAmount = lineDiscount(
+      li.quantity,
+      li.unit_price,
+      li.discount
+    );
+
+    const subTotal = li.unit_price * li.quantity;
+    const totalAfterDiscount = subTotal - discountAmount;
+    const lineTax = (totalAfterDiscount * li.tax) / 100;
+    const lineTotal = totalAfterDiscount + lineTax;
+
+    return {
+      id: li.id,
+      description: li.description,
+      subTotal,
+      totalAfterDiscount,
+      lineTax,
+      lineTotal,
+      discountAmount,
+    };
+  });
+
+  const subTotal = lineItemAdjusted.reduce(
+    (acc, curr) => acc + curr.subTotal,
     0
   );
 
-  const totalDiscount = lineItemListAdjusted.reduce((acc, curr) => {
-    const subtotal = curr.quantity * curr.unit_price;
-    const discountAmount = (subtotal * curr.discount) / 100;
+  const totalDiscount = lineItemAdjusted.reduce(
+    (acc, curr) => acc + curr.discountAmount,
+    0
+  );
 
-    return acc + discountAmount;
-  }, 0);
+  const totalTax = lineItemAdjusted.reduce(
+    (acc, curr) => acc + curr.lineTax,
+    0
+  );
 
-  const totalTax = lineItemListAdjusted.reduce((acc, curr) => {
-    const subtotal = curr.quantity * curr.unit_price;
-    const discountAmount = (subtotal * curr.discount) / 100;
-    const taxableAmount = subtotal - discountAmount;
-
-    return acc + (taxableAmount * curr.tax) / 100;
-  }, 0);
+  const GrandTotal = lineItemAdjusted.reduce(
+    (acc, curr) => acc + curr.lineTotal,
+    0
+  );
 
   return (
     <main className="max-w-300 mx-auto">
-      <div className="p-5 flex justify-between items-center">
+      <div className="py-5 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-medium">{document.title}</h1>
           <p>
@@ -80,27 +126,31 @@ function RouteComponent() {
         <thead>
           <tr>
             <th>Description</th>
-            <th>UnitPrice</th>
-            <th>Quantity</th>
-            <th>Discount (%)</th>
             <th>Subtotal</th>
+            <th>Discount Ammount</th>
+            <th>After Discount</th>
+            <th>Tax</th>
+            <th>Line Item</th>
           </tr>
         </thead>
         <tbody>
-          {lineItemList.map((li) => (
-            <tr key={li.id}>
-              <th>{li.description}</th>
-              <th>{li.unit_price}</th>
-              <th>{li.quantity}</th>
-              <th>{li.discount}</th>
-              <th>{li.unit_price * li.quantity}</th>
-            </tr>
-          ))}
+          {lineItemAdjusted.map((li) => {
+            return (
+              <tr key={li.id}>
+                <th>{li.description}</th>
+                <th>{li.subTotal}</th>
+                <th>{li.discountAmount}</th>
+                <th>{li.totalAfterDiscount}</th>
+                <th>{li.lineTax}</th>
+                <th>{li.lineTotal}</th>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div className="flex flex-col items-end p-6 mt-6">
         <p>
-          Total Brute : <span className="font-bold">{total}</span>
+          Subtotal <span className="font-bold">{subTotal}</span>
         </p>
         <p>
           Total Discount : <span className="font-bold">{totalDiscount}</span>
@@ -110,8 +160,7 @@ function RouteComponent() {
         </p>
 
         <p className="text-xl border-t-1 pt-3">
-          Total To Pay Tax :{' '}
-          <span className="font-bold">{total - totalDiscount + totalTax}</span>
+          Grand Total : <span className="font-bold">{GrandTotal}</span>
         </p>
       </div>
     </main>

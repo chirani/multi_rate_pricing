@@ -4,6 +4,7 @@ import {
   text,
   check,
   index,
+  real,
 } from 'drizzle-orm/sqlite-core';
 import { relations, sql } from 'drizzle-orm';
 
@@ -33,15 +34,11 @@ export const lineItems = sqliteTable(
       .references(() => documents.id),
     description: text().notNull(),
     quantity: integer().notNull(),
-    unit_price: integer().notNull(),
-    discount: integer().notNull().default(0),
-    tax: integer(),
+    unit_price: real().notNull(),
+    discount: text().notNull().default('0'),
+    tax: real().notNull().default(0),
   },
-  (table) => [
-    check('unit_price_min_check', sql`${table.unit_price} >= 1`),
-    check('tax_min_check', sql`${table.tax} >= 0`),
-    check('discount_min_check', sql`${table.discount} >= 0`),
-  ]
+  (table) => [check('unit_price_min_check', sql`${table.unit_price} >= 1`)]
 );
 export type DocumentDB = typeof documents.$inferInsert;
 export type LineItemDB = typeof lineItems.$inferInsert;

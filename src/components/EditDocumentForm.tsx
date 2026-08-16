@@ -6,8 +6,9 @@ import { Delete } from 'lucide-react';
 import {
   fetchDocumentByIdQueryOpts,
   fetchLineItemsQueryOpts,
-  useInsertDocuments,
+  useDeleteLineItems,
   useInsertLineItems,
+  useUpdateDocuments,
 } from '#/queries';
 import { useQuery } from '@tanstack/react-query';
 
@@ -67,8 +68,9 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
   const { data: lineItemsData, isSuccess: isLineItemsSuccess } = useQuery(
     fetchLineItemsQueryOpts({ document_id: props.document_id })
   );
-  const { mutateAsync: insertDocument } = useInsertDocuments();
+  const { mutateAsync: updateDocument } = useUpdateDocuments();
   const { mutateAsync: insertLineItems } = useInsertLineItems();
+  const { mutateAsync: deleteLineItems } = useDeleteLineItems();
 
   useEffect(() => {
     if (isDocumentDataSucess && documentData.length) {
@@ -81,13 +83,11 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
 
   useEffect(() => {
     if (isLineItemsSuccess && lineItemsData.length) {
-      const lineItemsAdjusted = lineItemsData;
-      setValues({
-        lineItems: lineItemsAdjusted.map((li) => ({
-          ...li,
-          tax: li.tax ? li.tax : 0,
-        })),
-      });
+      const lineItemsAdjusted = lineItemsData.map((li) => ({
+        ...li,
+        tax: li.tax ? li.tax : 0,
+      }));
+      reset({ lineItems: lineItemsAdjusted });
     }
   }, [lineItemsData, isLineItemsSuccess]);
 
@@ -98,6 +98,10 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
 
   const hasDuplicateLineItems = (lineItems: LineItemSchema[]) => {
     const lineItemsTitles = new Set<string>();
+
+    if (lineItems.length) {
+      return false;
+    }
 
     return lineItems.some((lineItem: LineItemSchema) => {
       if (lineItemsTitles.has(lineItem.description)) {
@@ -115,27 +119,24 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
         type: 'value',
         message: "You can't have two line items with the same description?",
       });
+
       return;
     }
 
     try {
-      const createdDocument = await insertDocument([
-        {
-          customer: data.customer,
-          title: data.title,
-          status: data.status,
-          user_id: props.user_id,
-        },
-      ]);
+      await updateDocument({
+        document_id: props.document_id,
+        title: data.title,
+        customer: data.customer,
+      });
+      await deleteLineItems(Number(props.document_id));
 
       const preparedLineItems = data.lineItems.map((li) => ({
         ...li,
-        document_id: createdDocument[0].id,
+        document_id: props.document_id,
       }));
 
       await insertLineItems(preparedLineItems);
-
-      reset();
     } catch (error) {
       console.log(error);
     }

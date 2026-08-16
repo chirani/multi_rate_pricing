@@ -1,6 +1,6 @@
 import type { DocumentSelectDB } from '#/db/schema';
 import { Link } from '@tanstack/react-router';
-import { Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface DocumentListProps {
   documentList: DocumentSelectDB[];
@@ -34,9 +34,13 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
           <div className="btn btn-ghost text-blue-500 mr-auto">
             {document.status}
           </div>
-          <button className="btn btn-ghost btn-square">
-            <Trash2 />
-          </button>
+          <Link
+            to="/document/$id/edit"
+            params={{ id: String(document.id) }}
+            className="btn btn-ghost btn-square"
+          >
+            <Pencil />
+          </Link>
         </li>
       ))}
     </ul>

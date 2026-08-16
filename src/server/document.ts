@@ -1,7 +1,7 @@
 import { db } from '#/db';
 import { documents as documentsTable, lineItems } from '#/db/schema';
 import { createServerFn } from '@tanstack/react-start';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import z from 'zod';
 
 export const documentSchema = z.object({
@@ -18,7 +18,7 @@ export const lineItemSchema = z.object({
   document_id: z.int(),
   quantity: z.int().min(1),
   unit_price: z.number(),
-  discount: z.number(),
+  discount: z.string(),
   tax: z.number(),
 });
 
@@ -83,4 +83,26 @@ export const deleteLineItems = createServerFn({ method: 'POST' })
     return await db
       .delete(lineItems)
       .where(eq(lineItems.document_id, data.document_id));
+  });
+
+export const updateDocumentById = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      document_id: z.number(),
+      title: z.string(),
+      customer: z.string(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const { customer, title, document_id } = data;
+
+    return await db
+      .update(documentsTable)
+      .set({ title, customer })
+      .where(
+        and(
+          eq(documentsTable.id, document_id),
+          eq(documentsTable.status, 'draft')
+        )
+      );
   });

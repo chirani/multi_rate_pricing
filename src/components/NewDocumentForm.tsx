@@ -5,11 +5,13 @@ import { z } from 'zod';
 import { Delete } from 'lucide-react';
 import { useInsertDocuments, useInsertLineItems } from '#/queries';
 
+const validPercentageRegex = /^\d+%?$/;
+
 const lineItemSchema = z.object({
   description: z.string().min(3),
   quantity: z.int().min(1),
   unit_price: z.number(),
-  discount: z.number(),
+  discount: z.string().regex(validPercentageRegex),
   tax: z.number(),
 });
 
@@ -49,12 +51,17 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
       title: '',
       status: 'draft',
       lineItems: [
-        { description: 'new', quantity: 1, unit_price: 1, discount: 0, tax: 0 },
+        {
+          description: 'new',
+          quantity: 1,
+          unit_price: 1,
+          discount: '0',
+          tax: 0,
+        },
       ],
     },
   });
 
-  console.log(props.user_id);
   const { mutateAsync: insertDocument } = useInsertDocuments();
   const { mutateAsync: insertLineItems } = useInsertLineItems();
 
@@ -201,7 +208,7 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
                     description: 'new_item',
                     quantity: 1,
                     unit_price: 1,
-                    discount: 0,
+                    discount: '0',
                     tax: 0,
                   })
                 }
@@ -281,9 +288,7 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.discount`, {
-                            valueAsNumber: true,
-                          })}
+                          {...register(`lineItems.${index}.discount`)}
                         />
                         {errors?.lineItems?.[index]?.discount?.message && (
                           <p className="text-error max-w-full">

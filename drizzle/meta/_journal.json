@@ -36,6 +36,20 @@
       "when": 1786749975451,
       "tag": "0004_safe_mattie_franklin",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786836110286,
+      "tag": "0005_flawless_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786837438124,
+      "tag": "0006_cloudy_mongu",
+      "breakpoints": true
     }
   ]
 }
