@@ -34,11 +34,11 @@ export const lineItems = sqliteTable(
       .references(() => documents.id),
     description: text().notNull(),
     quantity: integer().notNull(),
-    unit_price: real().notNull(),
+    unit_price_cent: integer().notNull(),
     discount: text().notNull().default('0'),
     tax: real().notNull().default(0),
   },
-  (table) => [check('unit_price_min_check', sql`${table.unit_price} >= 1`)]
+  (table) => [check('unit_price_min_check', sql`${table.unit_price_cent} >= 1`)]
 );
 export type DocumentDB = typeof documents.$inferInsert;
 export type LineItemDB = typeof lineItems.$inferInsert;

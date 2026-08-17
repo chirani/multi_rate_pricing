@@ -16,6 +16,27 @@ CREATE TABLE `account` (
 );
 --> statement-breakpoint
 CREATE INDEX `account_userId_idx` ON `account` (`user_id`);--> statement-breakpoint
+CREATE TABLE `documents` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`user_id` text NOT NULL,
+	`customer` integer DEFAULT (unixepoch()),
+	`title` text NOT NULL,
+	`status` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `line_items` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`document_id` integer NOT NULL,
+	`description` text NOT NULL,
+	`quantity` integer NOT NULL,
+	`unit_price_cent` integer NOT NULL,
+	`discount` text DEFAULT '0' NOT NULL,
+	`tax` real DEFAULT 0 NOT NULL,
+	FOREIGN KEY (`document_id`) REFERENCES `documents`(`id`) ON UPDATE no action ON DELETE no action,
+	CONSTRAINT "unit_price_min_check" CHECK("line_items"."unit_price_cent" >= 1)
+);
+--> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`expires_at` integer NOT NULL,

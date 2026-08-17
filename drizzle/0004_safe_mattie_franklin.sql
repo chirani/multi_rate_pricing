@@ -1,1 +1,0 @@
-ALTER TABLE `line_items` ADD `description` text NOT NULL;

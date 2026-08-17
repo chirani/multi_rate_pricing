@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1786398483911,
-      "tag": "0000_lame_sentinel",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1786398821686,
-      "tag": "0001_easy_forgotten_one",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1786670807105,
-      "tag": "0002_sticky_marrow",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1786722173995,
-      "tag": "0003_flawless_dark_beast",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1786749975451,
-      "tag": "0004_safe_mattie_franklin",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1786836110286,
-      "tag": "0005_flawless_paladin",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1786837438124,
-      "tag": "0006_cloudy_mongu",
+      "when": 1786995376376,
+      "tag": "0000_pretty_ultimo",
       "breakpoints": true
     }
   ]
