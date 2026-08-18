@@ -4,3 +4,7 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export const formatValue = (value: number) => formatter.format(value);
+
+export function parseToCents(str: string) {
+  return Math.round(parseFloat(str) * 100);
+}

@@ -4,13 +4,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Delete } from 'lucide-react';
 import { useInsertDocuments, useInsertLineItems } from '#/queries';
+import { parseToCents } from '#/utils/formatters';
 
 const validPercentageRegex = /^\d+%?$/;
+const validPriceRegex = /^(0|[1-9]\d*)(\.\d+)?$/;
 
 const lineItemSchema = z.object({
   description: z.string().min(3),
   quantity: z.int().min(1),
-  unit_price: z.number(),
+  unit_price_cent: z
+    .string()
+    .regex(
+      validPriceRegex,
+      'Invalid number format only 2 decimals are allowed'
+    ),
   discount: z.string().regex(validPercentageRegex),
   tax: z.number(),
 });
@@ -54,7 +61,7 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
         {
           description: 'new',
           quantity: 1,
-          unit_price: 1,
+          unit_price_cent: '1',
           discount: '0',
           tax: 0,
         },
@@ -105,6 +112,7 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
       const preparedLineItems = data.lineItems.map((li) => ({
         ...li,
         document_id: createdDocument[0].id,
+        unit_price_cent: parseToCents(li.unit_price_cent),
       }));
 
       await insertLineItems(preparedLineItems);
@@ -207,7 +215,7 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
                   append({
                     description: 'new_item',
                     quantity: 1,
-                    unit_price: 1,
+                    unit_price_cent: '1',
                     discount: '0',
                     tax: 0,
                   })
@@ -256,13 +264,15 @@ const NewDocumentForm: React.FC<NewDocumentProps> = (props) => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.unit_price`, {
-                            valueAsNumber: true,
-                          })}
+                          {...register(`lineItems.${index}.unit_price_cent`)}
                         />
-                        {errors?.lineItems?.[index]?.unit_price?.message && (
+                        {errors?.lineItems?.[index]?.unit_price_cent
+                          ?.message && (
                           <p className="text-error max-w-40-200">
-                            {errors?.lineItems?.[index]?.unit_price?.message}
+                            {
+                              errors?.lineItems?.[index]?.unit_price_cent
+                                ?.message
+                            }
                           </p>
                         )}
                       </fieldset>

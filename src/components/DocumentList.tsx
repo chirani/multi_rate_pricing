@@ -1,6 +1,7 @@
 import type { DocumentSelectDB } from '#/db/schema';
 import { Link } from '@tanstack/react-router';
 import { Pencil } from 'lucide-react';
+import FinalizeDocumentDialog from './FinalizeDocumentDialog';
 
 interface DocumentListProps {
   documentList: DocumentSelectDB[];
@@ -25,15 +26,17 @@ const DocumentList: React.FC<DocumentListProps> = (props) => {
       {documentList.map((document) => (
         <li key={document.id} className="list-row items-center">
           <Link
-            className="btn btn-link w-full"
+            className="btn btn-link"
             to="/document/$id"
             params={{ id: String(document.id) }}
           >
             {document.title}
           </Link>
-          <div className="btn btn-ghost text-blue-500 mr-auto">
-            {document.status}
-          </div>
+          <div className="ml-auto"></div>
+          <FinalizeDocumentDialog
+            status={document.status as 'draft' | 'finalized'}
+            document_id={document.id}
+          />
           <Link
             to="/document/$id/edit"
             params={{ id: String(document.id) }}

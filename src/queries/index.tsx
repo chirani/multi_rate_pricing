@@ -1,9 +1,11 @@
 import {
+  deleteDocument,
   deleteLineItems,
   documentSchema,
   fetchDocumentById,
   fetchDocumentLineItems,
   fetchDocuments,
+  finalizeDocument,
   inserDocument,
   insertLineItems,
   lineItemSchema,
@@ -35,6 +37,9 @@ export const useDeleteLineItems = () =>
     mutationKey: ['delete-line-items'],
     mutationFn: async (document_id: number) =>
       await deleteLineItems({ data: { document_id } }),
+    onSuccess(_data, _variables, _onMutateResult, context) {
+      context.client.resetQueries({ queryKey: ['fetch-document-by-id'] });
+    },
   });
 
 export const useUpdateDocument = () =>
@@ -45,6 +50,11 @@ export const useUpdateDocument = () =>
       title: string;
       customer: string;
     }) => await updateDocumentById({ data }),
+    onSuccess(_data, _variables, _onMutateResult, context) {
+      context.client.resetQueries({
+        queryKey: ['fetch-documents', 'fetch-document-by-id'],
+      });
+    },
   });
 
 export const useUpdateLineItems = () =>
@@ -57,7 +67,41 @@ export const useUpdateLineItems = () =>
       const { lineItems, document_id } = data;
       return await updateLineItems({ data: { lineItems, document_id } });
     },
+    onSuccess(_data, _variables, _onMutateResult, context) {
+      context.client.resetQueries({
+        queryKey: ['fetch-documents', 'fetch-document-by-id'],
+      });
+    },
   });
+
+export const useFinalizedDocument = () => {
+  return useMutation({
+    mutationKey: ['finalize-document'],
+    mutationFn: async (data: {
+      document_id: number;
+      status: 'finalized' | 'draft';
+    }) => {
+      const { document_id, status } = data;
+      return await finalizeDocument({ data: { document_id, status } });
+    },
+    onSuccess(_data, _variables, _onMutateResult, context) {
+      context.client.resetQueries({ queryKey: ['fetch-documents'] });
+    },
+  });
+};
+
+export const useDeleteDocument = () => {
+  return useMutation({
+    mutationKey: ['delete-document'],
+    mutationFn: async (data: { document_id: number }) => {
+      const { document_id } = data;
+      return await deleteDocument({ data: { document_id } });
+    },
+    onSuccess(_data, _variables, _onMutateResult, context) {
+      context.client.resetQueries({ queryKey: ['fetch-documents'] });
+    },
+  });
+};
 
 export const fetchDocumentsQueryOpts = ({ user_id }: { user_id: string }) =>
   queryOptions({

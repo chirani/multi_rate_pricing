@@ -12,11 +12,12 @@ import {
 } from '#/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
+import { parseToCents } from '#/utils/formatters';
 
 const lineItemSchema = z.object({
   description: z.string().min(3),
   quantity: z.int().min(1),
-  unit_price: z.number(),
+  unit_price_cent: z.string(),
   discount: z.string(),
   tax: z.number(),
 });
@@ -62,7 +63,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
         {
           description: 'new',
           quantity: 1,
-          unit_price: 1,
+          unit_price_cent: '1',
           discount: '0',
           tax: 0,
         },
@@ -91,7 +92,12 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
 
   useEffect(() => {
     if (isLineItemsSuccess && lineItemsData.length) {
-      reset({ lineItems: lineItemsData });
+      const lineItemsAdjusted = lineItemsData.map((li) => ({
+        ...li,
+        unit_price_cent: li.unit_price_cent / 100 + '',
+      }));
+
+      reset({ lineItems: lineItemsAdjusted });
     }
   }, [lineItemsData, isLineItemsSuccess]);
 
@@ -138,6 +144,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
       const preparedLineItems = data.lineItems.map((li) => ({
         ...li,
         document_id: props.document_id,
+        unit_price_cent: parseToCents(li.unit_price_cent),
       }));
 
       await insertLineItems(preparedLineItems);
@@ -242,7 +249,7 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
                   append({
                     description: 'new_item',
                     quantity: 1,
-                    unit_price: 1,
+                    unit_price_cent: '1',
                     discount: '0',
                     tax: 0,
                   })
@@ -291,13 +298,15 @@ const EditDocumentForm: React.FC<EditDocumentProps> = (props) => {
                         <input
                           className="input input-ghost m-0 min-w-0 block"
                           type="text"
-                          {...register(`lineItems.${index}.unit_price`, {
-                            valueAsNumber: true,
-                          })}
+                          {...register(`lineItems.${index}.unit_price_cent`)}
                         />
-                        {errors?.lineItems?.[index]?.unit_price?.message && (
+                        {errors?.lineItems?.[index]?.unit_price_cent
+                          ?.message && (
                           <p className="text-error max-w-40-200">
-                            {errors?.lineItems?.[index]?.unit_price?.message}
+                            {
+                              errors?.lineItems?.[index]?.unit_price_cent
+                                ?.message
+                            }
                           </p>
                         )}
                       </fieldset>

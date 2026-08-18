@@ -1,10 +1,10 @@
-// Hello
-
+import DeleteDocumentDialog from '#/components/DeleteDocumentDialog';
 import { fetchDocumentByIdQueryOpts, fetchLineItemsQueryOpts } from '#/queries';
+import { lineDiscount } from '#/utils/discount';
 import { formatValue } from '#/utils/formatters';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 export const Route = createFileRoute('/document/$id/')({
   component: RouteComponent,
@@ -30,42 +30,14 @@ function RouteComponent() {
 
   const document = documentList[0];
 
-  const cleanDiscount = (input: string) => {
-    if (input == null) return 0;
-    // Convert to string and extract numbers and decimals only
-    const sanitized = String(input).replace(/[^0-9.]/g, '');
-    const result = parseFloat(sanitized);
-    return Number.isNaN(result) ? 0 : result;
-  };
-
-  const lineDiscount = (
-    quantity: number,
-    unit_price: number,
-    itemDiscount: string
-  ) => {
-    const subtotal = quantity * unit_price;
-    const discount = itemDiscount.trim();
-
-    let discountAmount: number;
-
-    if (discount.includes('%')) {
-      const percentageDiscount = cleanDiscount(discount);
-      discountAmount = (subtotal * percentageDiscount) / 100;
-    } else {
-      discountAmount = parseFloat(discount) * quantity;
-    }
-
-    return discountAmount;
-  };
-
   const lineItemAdjusted = lineItemList.map((li) => {
     const discountAmount = lineDiscount(
       li.quantity,
-      li.unit_price,
+      li.unit_price_cent,
       li.discount
     );
 
-    const subTotal = li.unit_price * li.quantity;
+    const subTotal = (li.unit_price_cent * li.quantity) / 100;
     const totalAfterDiscount = subTotal - discountAmount;
     const lineTax = (totalAfterDiscount * li.tax) / 100;
     const lineTotal = totalAfterDiscount + lineTax;
@@ -118,9 +90,7 @@ function RouteComponent() {
           >
             <Pencil />
           </Link>
-          <button className="btn btn-lg btn-ghost btn-square hover:text-error">
-            <Trash2 />
-          </button>
+          <DeleteDocumentDialog document_id={Number(id)} />
         </div>
       </div>
       <table className="table mt-8">

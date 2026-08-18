@@ -13,7 +13,7 @@ export default function Navbar({ isLoggedin }: NavbarProps) {
     <nav className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl">
-          Document_Maker
+          Multi Rate Pricing
         </Link>
       </div>
 
